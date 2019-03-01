@@ -3,8 +3,10 @@ services:
   db:
     image: mysql:5.7
     volumes:
-      - "./.dbdata/db:/var/lib/mysql"
+      - './.dbdata/db:/var/lib/mysql'
     restart: always
+    ports:
+      - '3310:3306' # TODO: Cambiar para cada proyecto
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_DATABASE: ${MYSQL_DATABASE}
@@ -18,14 +20,15 @@ services:
     links:
       - db
     ports:
-      - "80:80"
+      - '8084:80' # TODO: Cambiar para cada proyecto
     restart: always
     volumes:
       - ./wordpress:/var/www/html
     environment:
-      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_HOST: db:3310
       WORDPRESS_DB_USER: ${MYSQL_USER}
       WORDPRESS_DB_PASSWORD: ${MYSQL_PASSWORD}
+      VIRTUAL_HOST: ${DOMAINS}
 
   phpmyadmin:
     depends_on:
@@ -34,5 +37,10 @@ services:
     links:
       - db
     ports:
-      - "8080:80"
+      - '8184:80' # TODO: Cambiar para cada proyecto
     restart: always
+
+networks:
+  default:
+    external:
+      name: nginx-proxy
